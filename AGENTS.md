@@ -1,0 +1,22 @@
+# AGENTS.md
+
+- Commands (pnpm): typecheck, lint, test, build; run order: typecheck → lint → tests → build (see README lines) [README commands](file:///Users/dk2/Documents/QuikTrac/README.md#L62-L69).
+- Single-test: `pnpm test src/path/to/file.test.ts` or `pnpm test -t "<name substring>"`; all tests: `pnpm test`.
+- App stack: Next.js (App Router) + TypeScript, shadcn/ui, Tailwind; see [Tech Stack](file:///Users/dk2/Documents/QuikTrac/README.md#L21-L31).
+- Structure: `src/app` (pages), `src/app/api` (routes), `src/lib` (clients/adapters/AI/search/logging), `prisma`, `public`, `tasks`; see [Project Structure](file:///Users/dk2/Documents/QuikTrac/README.md#L71-L79).
+- Data: Postgres (Hetzner) + pgvector via Prisma; migrations in `prisma/`; S3 (ap-south-1) for resumes; SES for email.
+- Integrations: Ceipal ATS, OpenAI, WhatsApp (Meta/Twilio), Voice (Vapi), Google CSE; scraping via Playwright.
+- PRD/Tasks live in `tasks/` → [prd-quictrac.md](file:///Users/dk2/Documents/QuikTrac/tasks/prd-quictrac.md), [tasks-prd-quictrac.md](file:///Users/dk2/Documents/QuikTrac/tasks/tasks-prd-quictrac.md).
+- Cursor rules present (read and follow): [create-prd.mdc](file:///Users/dk2/Documents/QuikTrac/.cursor/rules/create-prd.mdc), [generate-tasks.mdc](file:///Users/dk2/Documents/QuikTrac/.cursor/rules/generate-tasks.mdc), [login-architecture.mdc](file:///Users/dk2/Documents/QuikTrac/.cursor/rules/login-architecture.mdc), [process-task-list.mdc](file:///Users/dk2/Documents/QuikTrac/.cursor/rules/process-task-list.mdc).
+- Types: strict TypeScript; avoid `any`; prefer explicit return types; narrow unions; no implicit `any`.
+- React: PascalCase components; hooks `useX` camelCase; colocate component/test (`*.test.tsx`) near code; server/client components per Next best practice.
+- Imports: group std/third-party/local; prefer named exports; avoid default exports for utilities; keep paths stable (use tsconfig paths if configured).
+- Formatting: Prettier/ESLint defaults; 2-space indent; single quotes; trailing commas; keep Tailwind classes stable (avoid churn).
+- Naming: camelCase vars/functions; PascalCase types/components; UPPER_CASE env vars; files kebab-case.
+- Errors: validate at API boundaries; respond JSON `{ error, code }`; log with structured fields; redact PII; never leak secrets/keys.
+- Observability/compliance: structured logs, prompt redaction, audit trails; follow GDPR/DPDP (consent, retention, DSAR) per README.
+- Security: use httpOnly refresh cookies + Bearer access tokens; see JWT plan in [login-architecture.mdc](file:///Users/dk2/Documents/QuikTrac/.cursor/rules/login-architecture.mdc).
+- Env: copy `.env.example` → `.env`; required keys listed in README (Ceipal/OpenAI/AWS/DB/WhatsApp/SES/Vapi/Proxy).
+- Testing: prefer unit tests near modules; name with `.test.ts(x)`; mock external services (Ceipal, S3/SES, OpenAI, Twilio/Meta, Vapi).
+- No new dependencies without explicit approval; reuse patterns; small, cohesive diffs; mirror existing naming and error handling.
+- Code generation/automation must update task lists in `tasks/` and follow rule protocols above.
