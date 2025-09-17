@@ -80,7 +80,7 @@
   - [x] 1.7 Configure `.editorconfig` and Prettier for consistent formatting.
 
 - [ ] 2.0 Security, Secrets, and Environment Configuration
-  - [ ] 2.1 Implement `src/lib/env.ts` to validate required envs (Ceipal, OpenAI, Google CSE, S3, SES, DB, WhatsApp providers, Vapi).
+  - [x] 2.1 Implement `src/lib/env.ts` to validate required envs (Ceipal, OpenAI, Google CSE, S3, SES, DB, WhatsApp providers, Vapi).
   - [ ] 2.2 Create `.env.example` with all keys and notes (Mumbai region for S3/SES).
   - [ ] 2.3 Add basic security headers and CORS policy.
   - [ ] 2.4 Document production secrets strategy (AWS Secrets Manager or Doppler) in `README`.
