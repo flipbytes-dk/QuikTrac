@@ -10,7 +10,8 @@
 - `.editorconfig` - Editor configuration for consistent indentation and newlines.
 - `.prettierrc.json` - Prettier configuration (single quotes, trailing commas, 2-space indent).
 - `.prettierignore` - Ignore list for Prettier formatting.
-- `src/app/globals.css` - Global styles with Tailwind directives.
+- `.env.example` - Sample environment file (Mumbai region notes for S3/SES).
+ - `src/app/globals.css` - Global styles with Tailwind directives.
 - `src/app/layout.tsx` - Root layout with shadcn theme, providers.
 - `src/app/page.tsx` - Bootstrap home page (App Router).
 - `src/lib/utils.ts` - Utility `cn` function for class merging.
@@ -81,7 +82,7 @@
 
 - [ ] 2.0 Security, Secrets, and Environment Configuration
   - [x] 2.1 Implement `src/lib/env.ts` to validate required envs (Ceipal, OpenAI, Google CSE, S3, SES, DB, WhatsApp providers, Vapi).
-  - [ ] 2.2 Create `.env.example` with all keys and notes (Mumbai region for S3/SES).
+  - [x] 2.2 Create `.env.example` with all keys and notes (Mumbai region for S3/SES).
   - [ ] 2.3 Add basic security headers and CORS policy.
   - [ ] 2.4 Document production secrets strategy (AWS Secrets Manager or Doppler) in `README`.
   - [ ] 2.5 Add rate limit helper and request ID generator.
