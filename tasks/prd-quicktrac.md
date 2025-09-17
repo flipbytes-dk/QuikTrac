@@ -1,27 +1,62 @@
 # Quicktrac — Product Requirements Document (PRD)
 
+**Version:** 1.0  
+**Date:** December 2024  
+**Status:** Draft  
+**Stakeholders:** RPO Team, Engineering, Product  
+
+---
+
+## Executive Summary
+
+Quicktrac is an AI-powered recruitment platform designed to streamline the candidate sourcing and screening process for Recruitment Process Outsourcing (RPO) teams. By integrating with existing ATS systems and leveraging advanced AI capabilities, Quicktrac aims to reduce time-to-shortlist by 50% while improving candidate quality by 30%.
+
+---
+
 ## 1. Introduction / Overview
 
-Quicktrac is a web application for a Recruitment Process Outsourcing (RPO) team to dramatically reduce time-to-shortlist and improve candidate quality by leveraging AI across sourcing, screening, ranking, and outreach. It integrates with Ceipal ATS to pull jobs and applicants, uses LLMs to rank and summarize candidates against job requirements, stores resumes and parsed data for fast retrieval, and orchestrates multi-channel outreach (WhatsApp, email, voice AI). It also supports passive LinkedIn profile discovery via Google Custom Search API, and can draft high-quality job descriptions.
+### 1.1 Product Vision
+Quicktrac is a web application for a Recruitment Process Outsourcing (RPO) team to dramatically reduce time-to-shortlist and improve candidate quality by leveraging AI across sourcing, screening, ranking, and outreach.
 
-Primary problems addressed:
-- Excessive time and manual effort required to shortlist qualified candidates from Ceipal.
-- Inconsistent screening quality due to subjective or ad-hoc criteria.
-- Slow, inconsistent outreach and follow-up with candidates and clients.
+### 1.2 Core Capabilities
+- **ATS Integration:** Seamless integration with Ceipal ATS to pull jobs and applicants
+- **AI-Powered Ranking:** LLM-based candidate ranking and summarization against job requirements
+- **Resume Management:** Secure storage and parsing of resumes for fast retrieval
+- **Multi-Channel Outreach:** WhatsApp, email, and voice AI communication orchestration
+- **Passive Sourcing:** LinkedIn profile discovery via Google Custom Search API
+- **Content Generation:** AI-drafted job descriptions
 
-Primary goals:
-- End-to-end workflow from job ingestion to client-ready shortlist with AI ranking and explainability.
-- Fast, consistent, and configurable rubric-based scoring and filtering.
-- Integrated, compliant outreach and audit trails.
+### 1.3 Problem Statement
+**Primary problems addressed:**
+- **Time Inefficiency:** Excessive time and manual effort required to shortlist qualified candidates from Ceipal
+- **Quality Inconsistency:** Inconsistent screening quality due to subjective or ad-hoc criteria
+- **Communication Bottlenecks:** Slow, inconsistent outreach and follow-up with candidates and clients
+
+### 1.4 Solution Overview
+**Primary goals:**
+- End-to-end workflow from job ingestion to client-ready shortlist with AI ranking and explainability
+- Fast, consistent, and configurable rubric-based scoring and filtering
+- Integrated, compliant outreach and audit trails
 
 
-## 2. Goals
+## 2. Goals & Success Criteria
 
-- Reduce time-to-shortlist by 50% for typical roles within 60 days of launch.
-- Increase qualified shortlist rate by 30% via rubric-driven AI ranking.
-- Enable multi-channel candidate outreach in-app, with full audit trails and basic compliance controls (GDPR + India DPDP).
-- Provide JD generator that produces client-ready drafts with minimal inputs.
-- Support passive LinkedIn discovery to expand top-of-funnel beyond Ceipal applicants.
+### 2.1 Business Objectives
+- **Efficiency:** Reduce time-to-shortlist by 50% for typical roles within 60 days of launch
+- **Quality:** Increase qualified shortlist rate by 30% via rubric-driven AI ranking
+- **Automation:** Reduce manual screening effort by 8 hours/week per recruiter
+- **Engagement:** Increase candidate response rate by 20% through multi-channel outreach
+
+### 2.2 Functional Goals
+- Enable multi-channel candidate outreach in-app, with full audit trails and basic compliance controls (GDPR + India DPDP)
+- Provide JD generator that produces client-ready drafts with minimal inputs
+- Support passive LinkedIn discovery to expand top-of-funnel beyond Ceipal applicants
+
+### 2.3 Success Metrics
+- Time-to-shortlist reduction: 50% within 60 days for at least 10 representative roles
+- Qualified shortlist rate improvement: 30% compared to baseline manual process
+- Manual effort reduction: 8 hours/week per recruiter
+- Candidate response rate increase: 20% through multi-channel outreach
 
 
 ## 3. User Stories
@@ -41,30 +76,83 @@ Primary goals:
 
 ## 4. Functional Requirements
 
-Authentication & Roles
-1. The system must support email + password authentication.
-2. The system must support roles: Recruiter, Admin, and Client Viewer.
-3. Admins must be able to invite/manage users.
+### 4.1 Authentication & Access Control
+**REQ-001:** The system must support email + password authentication
+- **Acceptance Criteria:**
+  - Users can register with valid email and strong password (8+ chars, mixed case, numbers, symbols)
+  - Password reset functionality via email
+  - Session management with secure tokens
+  
+**REQ-002:** The system must support role-based access control
+- **Roles:** Recruiter, Admin, and Client Viewer
+- **Permissions:**
+  - Recruiters: Full access to jobs, candidates, outreach, JD generation
+  - Admins: User management, organization settings, system configuration
+  - Client Viewers: Read-only access to assigned shortlists
+  
+**REQ-003:** Admin user management capabilities
+- **Acceptance Criteria:**
+  - Invite users via email with role assignment
+  - Deactivate/reactivate user accounts
+  - Bulk user operations
 
-Ceipal Integration
-4. The system must fetch job details and applicants from Ceipal using provided credentials and API keys.
-5. The system must support writing back statuses/notes to Ceipal (configurable per org/job).
-6. The system must support on-demand sync by Job ID; background sync cadence will be determined later (see Open Questions).
-7. The system must handle and surface API errors and rate limits gracefully.
+### 4.2 Ceipal ATS Integration
+**REQ-004:** Job and applicant data synchronization
+- **Acceptance Criteria:**
+  - Fetch job details and all applicants by Job ID
+  - Support batch job retrieval
+  - Real-time data validation and error handling
+  
+**REQ-005:** Bidirectional status synchronization
+- **Acceptance Criteria:**
+  - Write candidate statuses back to Ceipal (configurable per org/job)
+  - Support custom status mappings
+  - Maintain audit trail of all sync operations
+  
+**REQ-006:** Sync management and reliability
+- **Acceptance Criteria:**
+  - On-demand sync by Job ID with progress indicators
+  - Graceful handling of API errors and rate limits
+  - Retry logic with exponential backoff
+  - Background sync cadence (TBD - see Open Questions)
 
-AI Ranking & Explainability
-8. The system must rank candidates against a job using LLMs with a default rubric (weights may be adjusted later):
-   - Skills match: 35
-   - Years of relevant experience: 20
-   - Education: 10
-   - Role/title alignment: 10
-   - Domain/industry match: 10
-   - Recency: 10
-   - Location/availability constraints: 5
-9. The system must allow a recruiter to set a numeric threshold (0–100) for shortlisting (default 70).
-10. The system must accept custom instructions at the job level that influence ranking.
-11. The system must show score breakdowns and matched evidence for transparency.
-12. The system must support fallback from OpenAI gpt-5 to GPT-4o family if gpt-5 is unavailable.
+### 4.3 AI-Powered Candidate Ranking
+**REQ-007:** Default scoring rubric implementation
+- **Scoring Weights:**
+  - Skills match: 35%
+  - Years of relevant experience: 20%
+  - Education: 10%
+  - Role/title alignment: 10%
+  - Domain/industry match: 10%
+  - Recency: 10%
+  - Location/availability constraints: 5%
+- **Acceptance Criteria:**
+  - Generate scores 0-100 for all candidates
+  - Weights configurable at organization level
+  
+**REQ-008:** Threshold-based candidate filtering
+- **Acceptance Criteria:**
+  - Recruiters can set numeric threshold (0-100, default: 70)
+  - Real-time filtering with threshold changes
+  - Bulk threshold application across candidates
+  
+**REQ-009:** Custom job-level ranking instructions
+- **Acceptance Criteria:**
+  - Text input for custom ranking criteria per job
+  - Instructions integrated into LLM prompts
+  - Preview mode to test instruction impact
+  
+**REQ-010:** Explainable AI scoring
+- **Acceptance Criteria:**
+  - Score breakdown by rubric category
+  - Evidence snippets supporting each score
+  - Confidence indicators for AI decisions
+  
+**REQ-011:** LLM provider redundancy
+- **Acceptance Criteria:**
+  - Primary: OpenAI gpt-5 (when available)
+  - Fallback: GPT-4o family
+  - Automatic failover with status indicators
 
 Resume Storage & Parsing
 13. The system must store original resumes (PDF and DOCX) in an AWS S3 bucket in the Mumbai region.
@@ -154,12 +242,29 @@ Security & Compliance
 - Environment variables (provided): CEIPAL_EMAIL, CEIPAL_PASSWORD, CEIPAL_API_KEY, OPENAI_API_KEY, GOOGLE_API_KEY, GOOGLE_SEARCH_ENGINE_ID, GOOGLE_PUBLIC_URL.
 
 
-## 8. Success Metrics
+## 8. Risk Assessment & Mitigation
 
-- Reduce time-to-shortlist by 50% within 60 days for at least 10 representative roles.
-- Increase qualified shortlist rate by 30% compared to baseline manual process.
-- Reduce manual screening effort by 8 hours/week per recruiter.
-- Increase candidate response rate by 20% through multi-channel outreach.
+### 8.1 Technical Risks
+| Risk | Impact | Probability | Mitigation |
+|------|---------|-------------|------------|
+| Ceipal API rate limiting | High | Medium | Implement exponential backoff, request queuing, and caching |
+| LLM provider outages | High | Low | Multi-provider fallback strategy, local model backup |
+| Resume parsing accuracy | Medium | Medium | Multi-stage parsing pipeline with human review workflow |
+| LinkedIn scraping blocks | Medium | High | Proxy rotation, rate limiting, alternative enrichment APIs |
+
+### 8.2 Business Risks
+| Risk | Impact | Probability | Mitigation |
+|------|---------|-------------|------------|
+| Poor AI ranking quality | High | Medium | Extensive testing, human feedback loop, rubric refinement |
+| Compliance violations | High | Low | Regular legal review, built-in privacy controls |
+| Low user adoption | Medium | Medium | Comprehensive training, phased rollout, feedback integration |
+
+### 8.3 Security & Privacy Risks
+| Risk | Impact | Probability | Mitigation |
+|------|---------|-------------|------------|
+| Data breach | High | Low | Encryption at rest/transit, access controls, audit logging |
+| GDPR/DPDP violations | High | Low | Privacy by design, consent management, data retention policies |
+| API key exposure | Medium | Low | Secure secret management, key rotation, environment isolation |
 
 
 ## 9. Open Questions
