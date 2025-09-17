@@ -2,9 +2,24 @@
 
 - `package.json` - Project dependencies, scripts, workspace config.
 - `next.config.ts` - Next.js configuration.
+- `tsconfig.json` - TypeScript configuration.
+- `next-env.d.ts` - Next.js TypeScript ambient types.
+- `.eslintrc.json` - ESLint configuration.
 - `tailwind.config.ts` - Tailwind CSS configuration.
 - `postcss.config.js` - PostCSS configuration for Tailwind.
+- `.editorconfig` - Editor configuration for consistent indentation and newlines.
+- `.prettierrc.json` - Prettier configuration (single quotes, trailing commas, 2-space indent).
+- `.prettierignore` - Ignore list for Prettier formatting.
+- `src/app/globals.css` - Global styles with Tailwind directives.
 - `src/app/layout.tsx` - Root layout with shadcn theme, providers.
+- `src/app/page.tsx` - Bootstrap home page (App Router).
+- `src/lib/utils.ts` - Utility `cn` function for class merging.
+- `src/components/ui/button.tsx` - Button component.
+- `src/components/ui/input.tsx` - Input component.
+- `src/components/ui/dialog.tsx` - Dialog component wrappers.
+- `src/components/ui/table.tsx` - Table primitives.
+- `src/components/ui/tabs.tsx` - Tabs components.
+- `src/components/ui/tooltip.tsx` - Tooltip components.
 - `src/app/(auth)/login/page.tsx` - Login page (email + password).
 - `src/app/(dashboard)/dashboard/page.tsx` - Main dashboard to enter Job ID and view results.
 - `src/app/(jobs)/job/[jobId]/page.tsx` - Job results list with ranking, filters, threshold slider, custom instructions.
@@ -41,7 +56,10 @@
 - `src/lib/observability/logger.ts` - Structured logging (JSON), request IDs.
 - `src/lib/observability/audit.ts` - Audit trail utilities (per candidate/job/outreach).
 - `src/middleware.ts` - Auth/session middleware, role guards, rate limits, business hours.
-- `jest.config.ts` - Jest unit test configuration.
+- `jest.config.js` - Jest unit test configuration.
+- `jest.setup.ts` - Jest setup file to extend matchers.
+- `src/lib/utils.test.ts` - Example unit test for utility.
+- `src/components/ui/button.test.tsx` - Example React component test.
 - `src/**/*.test.ts` - Unit tests (example locations alongside code files).
 - `src/**/*.test.tsx` - Component tests for pages/components.
 
@@ -52,14 +70,14 @@
 
 ## Tasks
 
-- [ ] 1.0 Project Bootstrap and Tooling
-  - [ ] 1.1 Initialize Next.js (App Router) with TypeScript and ESLint.
-  - [ ] 1.2 Add Tailwind CSS and configure `tailwind.config.ts` and `postcss.config.js`.
-  - [ ] 1.3 Install shadcn/ui and generate base components (Button, Input, Dialog, Table, Tabs, Tooltip).
-  - [ ] 1.4 Add absolute imports/aliases (e.g., `@/lib`, `@/app`).
-  - [ ] 1.5 Set up Jest + React Testing Library; add example test.
-  - [ ] 1.6 Add scripts: `typecheck`, `lint`, `test`, `dev`, `build`, `start`.
-  - [ ] 1.7 Configure `.editorconfig` and Prettier for consistent formatting.
+- [x] 1.0 Project Bootstrap and Tooling
+  - [x] 1.1 Initialize Next.js (App Router) with TypeScript and ESLint.
+  - [x] 1.2 Add Tailwind CSS and configure `tailwind.config.ts` and `postcss.config.js`.
+  - [x] 1.3 Install shadcn/ui and generate base components (Button, Input, Dialog, Table, Tabs, Tooltip).
+  - [x] 1.4 Add absolute imports/aliases (e.g., `@/lib`, `@/app`).
+  - [x] 1.5 Set up Jest + React Testing Library; add example test.
+  - [x] 1.6 Add scripts: `typecheck`, `lint`, `test`, `dev`, `build`, `start`.
+  - [x] 1.7 Configure `.editorconfig` and Prettier for consistent formatting.
 
 - [ ] 2.0 Security, Secrets, and Environment Configuration
   - [ ] 2.1 Implement `src/lib/env.ts` to validate required envs (Ceipal, OpenAI, Google CSE, S3, SES, DB, WhatsApp providers, Vapi).
