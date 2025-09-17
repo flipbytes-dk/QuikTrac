@@ -84,6 +84,30 @@ pnpm build
 - Capture consent, enforce opt-out, and respect send windows.
 - Implement DSAR (export/delete) and retention policies.
 
+## Secrets: Production Strategy (AWS Secrets Manager or Doppler)
+
+- Local: keep secrets in `.env` (never commit). Use `.env.example` as the template.
+- Production: prefer a secret manager; inject to runtime as environment variables.
+
+AWS Secrets Manager
+- Create a JSON secret (e.g., `quiktrac/prod/app`) with keys matching `.env.example`.
+- Attach an IAM policy to the runtime (Vercel/Node/EC2) allowing `secretsmanager:GetSecretValue` for that secret.
+- Inject at boot:
+  - Option A (deploy-time): resolve secrets in CI and set env vars for the deployment target.
+  - Option B (runtime): small bootstrap loads the secret and maps to `process.env` before Next.js server starts.
+- Rotation: use Secrets Manager rotation for keys that support it (e.g., DB). Update CI and runtime to re-resolve.
+
+Doppler
+- Create a project/config (dev/staging/prod) and add keys from `.env.example`.
+- In CI, run with `doppler run -- pnpm build` (or your deploy command) to inject env vars.
+- On platforms with native Doppler integrations, connect environment and sync.
+- Rotation: rotate in Doppler; deployments pick up new values on next deploy or via sync.
+
+CI/CD Integration
+- Never echo secrets in logs. Use masked CI variables.
+- Build steps should only need non-production keys; production keys should be provided at runtime where possible.
+- Validate required keys at boot using [`src/lib/env.ts`](src/lib/env.ts).
+
 ## Links
 
 - PRD: [tasks/prd-quicktrac.md](tasks/prd-quicktrac.md)
