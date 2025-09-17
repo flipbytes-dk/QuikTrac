@@ -56,7 +56,7 @@
 - `src/lib/linkedin/scraper.ts` - Playwright + proxy rotation scraper for LinkedIn public profiles.
 - `src/lib/observability/logger.ts` - Structured logging (JSON), request IDs.
 - `src/lib/observability/audit.ts` - Audit trail utilities (per candidate/job/outreach).
-- `src/middleware.ts` - Auth/session middleware, role guards, rate limits, business hours.
+- `src/middleware.ts` - Middleware for security headers and CORS now; future: auth/session, role guards, rate limits, business hours.
 - `jest.config.js` - Jest unit test configuration.
 - `jest.setup.ts` - Jest setup file to extend matchers.
 - `src/lib/utils.test.ts` - Example unit test for utility.
@@ -83,7 +83,7 @@
 - [ ] 2.0 Security, Secrets, and Environment Configuration
   - [x] 2.1 Implement `src/lib/env.ts` to validate required envs (Ceipal, OpenAI, Google CSE, S3, SES, DB, WhatsApp providers, Vapi).
   - [x] 2.2 Create `.env.example` with all keys and notes (Mumbai region for S3/SES).
-  - [ ] 2.3 Add basic security headers and CORS policy.
+  - [x] 2.3 Add basic security headers and CORS policy.
   - [ ] 2.4 Document production secrets strategy (AWS Secrets Manager or Doppler) in `README`.
   - [ ] 2.5 Add rate limit helper and request ID generator.
 
