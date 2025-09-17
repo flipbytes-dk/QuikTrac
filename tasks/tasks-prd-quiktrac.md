@@ -55,6 +55,7 @@
 - `src/lib/linkedin/gcse.ts` - Google Custom Search query generator + client.
 - `src/lib/linkedin/scraper.ts` - Playwright + proxy rotation scraper for LinkedIn public profiles.
 - `src/lib/observability/logger.ts` - Structured logging (JSON), request IDs.
+- `src/lib/security/rate-limit.ts` - Simple in-memory sliding window rate limiter (dev/single-instance).
 - `src/lib/observability/audit.ts` - Audit trail utilities (per candidate/job/outreach).
 - `src/middleware.ts` - Middleware for security headers and CORS now; future: auth/session, role guards, rate limits, business hours.
 - `jest.config.js` - Jest unit test configuration.
@@ -85,7 +86,7 @@
   - [x] 2.2 Create `.env.example` with all keys and notes (Mumbai region for S3/SES).
   - [x] 2.3 Add basic security headers and CORS policy.
   - [x] 2.4 Document production secrets strategy (AWS Secrets Manager or Doppler) in `README`.
-  - [ ] 2.5 Add rate limit helper and request ID generator.
+  - [x] 2.5 Add rate limit helper and request ID generator.
 
 - [ ] 3.0 Database Provisioning on Hetzner (Postgres + pgvector) and Prisma Schema
   - [ ] 3.1 Provision Postgres on Hetzner; enable `pgvector` extension.
