@@ -1,7 +1,7 @@
 # Quicktrac — Product Requirements Document (PRD)
 
 **Version:** 1.0  
-**Date:** December 2024  
+**Date:** 17th September 2025 
 **Status:** Draft  
 **Stakeholders:** RPO Team, Engineering, Product  
 
@@ -154,18 +154,21 @@ Quicktrac is a web application for a Recruitment Process Outsourcing (RPO) team 
   - Fallback: GPT-4o family
   - Automatic failover with status indicators
 
-Resume Storage & Parsing
+### 4.4 Resume Storage & Parsing
+
 13. The system must store original resumes (PDF and DOCX) in an AWS S3 bucket in the Mumbai region.
 14. The system must parse resumes into structured JSON (e.g., name, contact, skills, work history, education) using a dedicated parser pipeline plus LLM normalization.
 15. The system must store parsed JSON and reference to original file; both should be retrievable.
 16. The system must ensure encryption at rest (S3 SSE) and basic PII safeguards.
 
-Database & Search
+### 4.5 Database & Search
+
 17. The system must persist applicants, resumes, parsed profiles, jobs, rankings, and outreach logs in a Postgres database hosted on a Hetzner VPS.
 18. The system must support vector similarity search (pgvector) for semantic queries.
 19. The system must support the following queries: filters (location, skills, years), keyword search, and semantic search.
 
-Candidate Outreach
+### 4.6 Candidate Outreach
+
 20. The system must support WhatsApp messaging via Meta WhatsApp Business API and Twilio WhatsApp (provider selectable per org/job).
 21. The system must support email sending; initial provider: AWS SES (with DKIM/SPF guidance). Alternative providers may be configured later.
 22. The system must support voice outreach via a Voice AI provider; initial provider: Vapi, with an abstraction to allow later support for Retell AI/ElevenLabs.
@@ -173,30 +176,35 @@ Candidate Outreach
 24. The system must allow basic rate limiting and business-hours windows for outreach.
 25. The system must track and store consent status per candidate where applicable.
 
-Client Delivery
+### 4.7 Client Delivery
+
 26. The system must allow recruiters to email a client-ready shortlist including:
    - Candidate summary, score, and key highlights
    - Resume links (S3 pre-signed URLs) or attached PDFs (configurable)
    - Optional scoring breakdown per candidate
 27. The system must optionally provide a client portal view (read-only) to review the shortlist.
 
-JD Generator
+### 4.8 JD Generator
+
 28. The system must generate a JD draft using LLMs from inputs: title, seniority, skills, location, compensation range, and domain.
 29. The system must output Markdown by default; HTML export is optional.
 30. The system must provide tone presets (e.g., formal, concise, sales-focused).
 
-Passive LinkedIn Discovery
+### 4.9 Passive LinkedIn Discovery
+
 31. The system must generate an array of Google Custom Search queries that shard the space to target LinkedIn profile pages only, with intent to yield >100 total results when paginated.
 32. The system must scrape public LinkedIn profile pages discovered (subject to ToS risks), using Playwright with proxy rotation.
 33. The system must extract key fields (e.g., name, headline/title, location, current company, recent roles, education, key skills, profile URL, contact if public) and rank profiles using the same rubric.
 34. The system must merge de-duplicated scraped profiles into search results and support the same outreach flow.
 
-Observability & Audit
+### 4.10 Observability & Audit
+
 35. The system must log major API calls, AI prompts (with redaction/hashing for sensitive segments), and model responses metadata.
 36. The system must provide an audit trail per candidate and per job.
 37. The system must support export of logs on request.
 
-Security & Compliance
+### 4.11 Security & Compliance
+
 38. The system must support GDPR and India DPDP-aligned data handling: consent tracking, data subject requests, deletion workflow, and retention policy configuration.
 39. The system must secure secrets via .env in development and a managed secret store in production.
 
