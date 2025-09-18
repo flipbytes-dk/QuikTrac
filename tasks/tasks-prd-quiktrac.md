@@ -97,7 +97,7 @@
   - [x] 3.6 Add `src/lib/db/prisma.ts` with robust singleton pattern.
 
 - [ ] 4.0 Authentication and Roles (Email/Password; Admin, Recruiter, Client Viewer)
-  - [ ] 4.1 Build `POST /api/auth/register` (admin only) with bcrypt hashing.
+  - [x] 4.1 Build `POST /api/auth/register` (admin only) with bcrypt hashing.
   - [ ] 4.2 Build `POST /api/auth/login` issuing secure HTTP-only JWT cookies.
   - [ ] 4.3 Implement `src/middleware.ts` to enforce sessions and role guards.
   - [ ] 4.4 Create login page UI and form validation.
