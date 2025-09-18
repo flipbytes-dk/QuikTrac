@@ -104,7 +104,7 @@
   - [x] 4.3 Implement `src/middleware.ts` to enforce sessions and role guards.
   - [x] 4.4 Create login page UI and form validation.
   - [x] 4.5 Add logout and session keep-alive endpoints.
-  - [ ] 4.6 Tests: auth flows, role protection, password hashing.
+  - [x] 4.6 Tests: auth flows, role protection, password hashing.
 
 - [ ] 5.0 Ceipal Integration (On-demand fetch; optional write-back)
   - [ ] 5.1 Implement `src/lib/ceipal/client.ts` (auth, refresh token, jobs, applicants, details).
