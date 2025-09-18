@@ -89,7 +89,7 @@
   - [x] 2.5 Add rate limit helper and request ID generator.
 
 - [ ] 3.0 Database Provisioning on Hetzner (Postgres + pgvector) and Prisma Schema
-  - [ ] 3.1 Provision Postgres on Hetzner; enable `pgvector` extension.
+  - [x] 3.1 Provision Postgres on Hetzner; enable `pgvector` extension.
   - [ ] 3.2 Define `prisma/schema.prisma` models: User, Role, Job, Applicant, Resume, ParsedProfile, Ranking, OutreachLog, Consent, ShareLink, AuditLog, Embedding, ProviderConfig.
   - [ ] 3.3 Implement relations, indices (skills, location, createdAt), and vector columns.
   - [ ] 3.4 Run `prisma migrate dev` locally; `prisma migrate deploy` script for CI.
