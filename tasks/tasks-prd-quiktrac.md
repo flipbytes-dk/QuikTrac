@@ -93,7 +93,7 @@
   - [x] 3.2 Define `prisma/schema.prisma` models: User, Role, Job, Applicant, Resume, ParsedProfile, Ranking, OutreachLog, Consent, ShareLink, AuditLog, Embedding, ProviderConfig.
   - [x] 3.3 Implement relations, indices (skills, location, createdAt), and vector columns.
   - [x] 3.4 Run `prisma migrate dev` locally; `prisma migrate deploy` script for CI.
-  - [ ] 3.5 Seed admin user and sample data.
+  - [x] 3.5 Seed admin user and sample data.
   - [x] 3.6 Add `src/lib/db/prisma.ts` with robust singleton pattern.
 
 - [ ] 4.0 Authentication and Roles (Email/Password; Admin, Recruiter, Client Viewer)
