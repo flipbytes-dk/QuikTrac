@@ -1,6 +1,6 @@
 # AGENTS.md
 
-- Commands (pnpm): typecheck, lint, test, build; run order: typecheck → lint → tests → build. Format: `pnpm format`. Aliases: `@/* → src/*`. Tailwind: v4 with `@tailwindcss/postcss` plugin. Jest: configured via `jest.config.js` + `jest.setup.ts`.
+- Commands (pnpm): typecheck, lint, test, build; run order: typecheck → lint → tests → build. Format: `pnpm format`. Aliases: `@/* → src/*`. Tailwind: v4 with `@tailwindcss/postcss` plugin. Jest: via `jest.config.js` + `jest.setup.ts`. Prisma: `prisma:generate`, `prisma:format`, `migrate:dev`, `migrate:deploy`, `db:seed`.
 - Single-test: `pnpm test src/path/to/file.test.ts` or `pnpm test -t "<name substring>"`; all tests: `pnpm test`.
 - App stack: Next.js (App Router) + TypeScript, shadcn/ui, Tailwind; see [Tech Stack](file:///Users/dk2/Documents/QuikTrac/README.md#L21-L31).
 - Structure: `src/app` (pages), `src/app/api` (routes), `src/lib` (clients/adapters/AI/search/logging), `prisma`, `public`, `tasks`; see [Project Structure](file:///Users/dk2/Documents/QuikTrac/README.md#L71-L79).
