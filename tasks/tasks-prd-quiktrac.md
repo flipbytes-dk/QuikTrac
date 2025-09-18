@@ -21,7 +21,7 @@
 - `src/components/ui/table.tsx` - Table primitives.
 - `src/components/ui/tabs.tsx` - Tabs components.
 - `src/components/ui/tooltip.tsx` - Tooltip components.
-- `src/app/(auth)/login/page.tsx` - Login page (email + password).
+- `src/app/(auth)/login/page.tsx` - Login page (email + password) with branded UI and logo.
 - `src/app/(dashboard)/dashboard/page.tsx` - Main dashboard to enter Job ID and view results.
 - `src/app/(jobs)/job/[jobId]/page.tsx` - Job results list with ranking, filters, threshold slider, custom instructions.
 - `src/app/(candidates)/candidate/[id]/page.tsx` - Candidate detail view/drawer with score breakdown and resume preview.
@@ -100,7 +100,7 @@
   - [x] 4.1 Build `POST /api/auth/register` (admin only) with bcrypt hashing.
   - [x] 4.2 Build `POST /api/auth/login` issuing secure HTTP-only JWT cookies.
   - [x] 4.3 Implement `src/middleware.ts` to enforce sessions and role guards.
-  - [ ] 4.4 Create login page UI and form validation.
+  - [x] 4.4 Create login page UI and form validation.
   - [ ] 4.5 Add logout and session keep-alive endpoints.
   - [ ] 4.6 Tests: auth flows, role protection, password hashing.
 
