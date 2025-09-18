@@ -29,6 +29,8 @@
 - `src/app/jd-generator/page.tsx` - JD generator UI.
 - `src/app/client/[shareId]/page.tsx` - Read-only client shortlist view (optional in MVP).
 - `src/app/api/auth/login/route.ts` - API route for email/password login.
+- `src/app/api/auth/logout/route.ts` - API route to clear session (refresh cookie).
+- `src/app/api/auth/refresh/route.ts` - API route to issue new access token from refresh cookie.
 - `src/app/api/auth/register/route.ts` - API route to create users (admin only, optional for seed).
 - `src/app/api/ceipal/jobs/[jobId]/route.ts` - On-demand job + applicants fetch from Ceipal.
 - `src/app/api/ranking/route.ts` - AI ranking endpoint applying rubric and custom instructions.
@@ -101,7 +103,7 @@
   - [x] 4.2 Build `POST /api/auth/login` issuing secure HTTP-only JWT cookies.
   - [x] 4.3 Implement `src/middleware.ts` to enforce sessions and role guards.
   - [x] 4.4 Create login page UI and form validation.
-  - [ ] 4.5 Add logout and session keep-alive endpoints.
+  - [x] 4.5 Add logout and session keep-alive endpoints.
   - [ ] 4.6 Tests: auth flows, role protection, password hashing.
 
 - [ ] 5.0 Ceipal Integration (On-demand fetch; optional write-back)
