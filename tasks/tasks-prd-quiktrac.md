@@ -40,7 +40,7 @@
 - `src/app/api/client/share/route.ts` - Create share link for client shortlist.
 - `src/lib/env.ts` - Runtime-safe env var loader.
 - `src/lib/db/prisma.ts` - Prisma client setup.
-- `prisma/schema.prisma` - Database schema (users, roles, jobs, applicants, resumes, parsed profiles, rankings, outreach logs, consents, shares).
+- `prisma/schema.prisma` - Database schema (users, roles, jobs, applicants, resumes, parsed profiles, rankings, outreach logs, consents, shares, audit logs, embeddings, provider configs).
 - `src/lib/storage/s3.ts` - S3 client (Mumbai), pre-signed URL helpers.
 - `src/lib/ceipal/client.ts` - Ceipal API client (auth, jobs, applicants, write-back).
 - `src/lib/ai/openai.ts` - OpenAI client with gpt-5 → GPT-4o fallback, rate/budget guard.
@@ -90,11 +90,11 @@
 
 - [ ] 3.0 Database Provisioning on Hetzner (Postgres + pgvector) and Prisma Schema
   - [x] 3.1 Provision Postgres on Hetzner; enable `pgvector` extension.
-  - [ ] 3.2 Define `prisma/schema.prisma` models: User, Role, Job, Applicant, Resume, ParsedProfile, Ranking, OutreachLog, Consent, ShareLink, AuditLog, Embedding, ProviderConfig.
+  - [x] 3.2 Define `prisma/schema.prisma` models: User, Role, Job, Applicant, Resume, ParsedProfile, Ranking, OutreachLog, Consent, ShareLink, AuditLog, Embedding, ProviderConfig.
   - [ ] 3.3 Implement relations, indices (skills, location, createdAt), and vector columns.
   - [ ] 3.4 Run `prisma migrate dev` locally; `prisma migrate deploy` script for CI.
   - [ ] 3.5 Seed admin user and sample data.
-  - [ ] 3.6 Add `src/lib/db/prisma.ts` with robust singleton pattern.
+  - [x] 3.6 Add `src/lib/db/prisma.ts` with robust singleton pattern.
 
 - [ ] 4.0 Authentication and Roles (Email/Password; Admin, Recruiter, Client Viewer)
   - [ ] 4.1 Build `POST /api/auth/register` (admin only) with bcrypt hashing.

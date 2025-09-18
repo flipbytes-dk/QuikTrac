@@ -1,0 +1,190 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  // pgvector extension will be enabled via migration; vector columns use Unsupported('vector') type
+}
+
+enum OutreachChannel {
+  whatsapp
+  email
+  voice
+}
+
+enum ApplicantStatus {
+  imported
+  parsed
+  ranked
+  shortlisted
+  contacted
+}
+
+model Role {
+  id    String @id @default(cuid())
+  name  String @unique
+  users User[]
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  roleId       String?
+  role         Role?    @relation(fields: [roleId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Job {
+  id                 String   @id @default(cuid())
+  ceipalId           String?  @unique
+  title              String
+  location           String?
+  description        String?
+  customInstructions String?
+  status             String? // open/closed etc.
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  applicants Applicant[]
+  rankings   Ranking[]
+  shareLinks  ShareLink[]
+  outreachLogs OutreachLog[]
+
+  @@index([createdAt])
+}
+
+model Applicant {
+  id              String           @id @default(cuid())
+  ceipalId        String?          @unique
+  jobId           String
+  job             Job              @relation(fields: [jobId], references: [id])
+  name            String
+  email           String?
+  phone           String?
+  location        String?
+  yearsExperience Int?             @default(0)
+  skills          String[]         @default([])
+  status          ApplicantStatus  @default(imported)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  resume        Resume?
+  parsedProfile ParsedProfile?
+  rankings      Ranking[]
+  outreachLogs  OutreachLog[]
+  consents      Consent[]
+
+  @@index([location])
+  @@index([createdAt])
+  @@index([skills], type: Gin)
+}
+
+model Resume {
+  id          String    @id @default(cuid())
+  applicantId String    @unique
+  applicant   Applicant @relation(fields: [applicantId], references: [id])
+  s3Key       String
+  mimeType    String?
+  sizeBytes   Int?
+  uploadedAt  DateTime  @default(now())
+}
+
+model ParsedProfile {
+  id              String    @id @default(cuid())
+  applicantId     String    @unique
+  applicant       Applicant @relation(fields: [applicantId], references: [id])
+  json            Json
+  skills          String[]  @default([])
+  titles          String[]  @default([])
+  location        String?
+  totalExpMonths  Int?      @default(0)
+  parsedAt        DateTime  @default(now())
+
+  @@index([skills], type: Gin)
+  @@index([location])
+}
+
+model Ranking {
+  id           String    @id @default(cuid())
+  jobId        String
+  applicantId  String
+  job          Job       @relation(fields: [jobId], references: [id])
+  applicant    Applicant @relation(fields: [applicantId], references: [id])
+  score        Int
+  explanation  String?
+  rubric       Json?
+  createdAt    DateTime  @default(now())
+
+  @@unique([jobId, applicantId])
+  @@index([score])
+}
+
+model OutreachLog {
+  id          String          @id @default(cuid())
+  applicantId String
+  jobId       String?
+  applicant   Applicant       @relation(fields: [applicantId], references: [id])
+  job         Job?            @relation(fields: [jobId], references: [id])
+  channel     OutreachChannel
+  provider    String
+  status      String
+  payload     Json?
+  createdAt   DateTime        @default(now())
+
+  @@index([createdAt])
+}
+
+model Consent {
+  id          String          @id @default(cuid())
+  applicantId String
+  applicant   Applicant       @relation(fields: [applicantId], references: [id])
+  channel     OutreachChannel
+  granted     Boolean         @default(true)
+  scope       String? // e.g., job-specific or org-wide
+  createdAt   DateTime        @default(now())
+}
+
+model ShareLink {
+  id        String   @id @default(cuid())
+  jobId     String
+  job       Job      @relation(fields: [jobId], references: [id])
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id          String    @id @default(cuid())
+  userId      String?
+  applicantId String?
+  jobId       String?
+  event       String
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+
+  @@index([createdAt])
+}
+
+model Embedding {
+  id         String   @id @default(cuid())
+  namespace  String   // e.g., 'resume', 'profile'
+  refId      String   // references Applicant/ParsedProfile id
+  // vector dimensions will be enforced in migration (e.g., vector(1536))
+  vector     Unsupported("vector")
+  model      String?
+  createdAt  DateTime @default(now())
+
+  @@index([namespace])
+}
+
+model ProviderConfig {
+  id        String   @id @default(cuid())
+  provider  String
+  config    Json
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
