@@ -1,5 +1,4 @@
 import { SignJWT, jwtVerify, type JWTPayload } from 'jose'
-import { TextEncoder } from 'util'
 
 const enc = new TextEncoder()
 

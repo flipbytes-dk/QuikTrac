@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { rateLimit } from '@/lib/security/rate-limit'
+import { verifyAccessToken } from '@/lib/auth/jwt'
 
 // Basic security headers + permissive CORS for API routes
 // Tune CORS origins in production.
@@ -26,10 +27,54 @@ function getClientIp(req: NextRequest): string {
   return (req.ip as string) || 'unknown'
 }
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const headers = new Headers(req.headers)
   const requestId = headers.get('x-request-id') || crypto.randomUUID()
   headers.set('x-request-id', requestId)
+
+  const urlPath = req.nextUrl.pathname
+  const isApi = urlPath.startsWith('/api/')
+  const isAuthApi = urlPath.startsWith('/api/auth/')
+
+  // CORS for API routes (handle preflight before auth)
+  if (isApi) {
+    const resHeaders = new Headers()
+    const origin = req.headers.get('origin') ?? '*'
+    resHeaders.set('Access-Control-Allow-Origin', origin || '*')
+    resHeaders.set('Vary', 'Origin')
+    resHeaders.set('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
+    resHeaders.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Request-Id')
+    resHeaders.set('Access-Control-Max-Age', '86400')
+
+    if (req.method === 'OPTIONS') {
+      // Preflight ends here
+      return new NextResponse(null, { status: 204, headers: resHeaders })
+    }
+
+    // Auth guard for protected APIs (exclude /api/auth/*)
+    if (!isAuthApi) {
+      const auth = req.headers.get('authorization') || ''
+      const token = auth.startsWith('Bearer ') ? auth.slice(7) : null
+      if (!token) {
+        resHeaders.set('Content-Type', 'application/json')
+        return new NextResponse(JSON.stringify({ error: 'unauthorized', code: 401, requestId }), {
+          status: 401,
+          headers: resHeaders,
+        })
+      }
+      try {
+        const claims = await verifyAccessToken(token)
+        headers.set('x-user-id', claims.sub as string)
+        headers.set('x-user-role', String(claims.role || 'recruiter'))
+      } catch {
+        resHeaders.set('Content-Type', 'application/json')
+        return new NextResponse(JSON.stringify({ error: 'invalid_token', code: 401, requestId }), {
+          status: 401,
+          headers: resHeaders,
+        })
+      }
+    }
+  }
 
   // build response with forwarded request headers
   const res = NextResponse.next({ request: { headers } })
@@ -38,22 +83,9 @@ export function middleware(req: NextRequest) {
   applyHeaders(res, securityHeaders)
   res.headers.set('X-Request-Id', requestId)
 
-  // CORS for API routes
-  if (req.nextUrl.pathname.startsWith('/api/')) {
-    const origin = req.headers.get('origin') ?? '*'
-
-    res.headers.set('Access-Control-Allow-Origin', origin || '*')
-    res.headers.set('Vary', 'Origin')
-    res.headers.set('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
-    res.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Request-Id')
-    res.headers.set('Access-Control-Max-Age', '86400')
-
-    if (req.method === 'OPTIONS') {
-      return new NextResponse(null, { status: 204, headers: res.headers })
-    }
-
+  if (isApi) {
     // Basic rate limit: 60 req/min per IP per path
-    const key = `${getClientIp(req)}:${req.nextUrl.pathname}`
+    const key = `${getClientIp(req)}:${urlPath}`
     const { allowed, remaining, resetAt } = rateLimit({ key, limit: 60, windowMs: 60_000 })
     res.headers.set('X-RateLimit-Limit', '60')
     res.headers.set('X-RateLimit-Remaining', String(remaining))

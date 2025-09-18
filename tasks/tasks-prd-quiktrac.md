@@ -99,7 +99,7 @@
 - [ ] 4.0 Authentication and Roles (Email/Password; Admin, Recruiter, Client Viewer)
   - [x] 4.1 Build `POST /api/auth/register` (admin only) with bcrypt hashing.
   - [x] 4.2 Build `POST /api/auth/login` issuing secure HTTP-only JWT cookies.
-  - [ ] 4.3 Implement `src/middleware.ts` to enforce sessions and role guards.
+  - [x] 4.3 Implement `src/middleware.ts` to enforce sessions and role guards.
   - [ ] 4.4 Create login page UI and form validation.
   - [ ] 4.5 Add logout and session keep-alive endpoints.
   - [ ] 4.6 Tests: auth flows, role protection, password hashing.
