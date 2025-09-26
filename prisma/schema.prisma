@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider   = "postgresql"
-  url        = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
   // pgvector extension will be enabled via migration; vector columns use Unsupported('vector') type
 }
 
@@ -29,51 +29,100 @@ model Role {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String
-  roleId       String?
-  role         Role?    @relation(fields: [roleId], references: [id])
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id              String    @id @default(cuid())
+  email           String    @unique
+  passwordHash    String
+  roleId          String?
+  role            Role?     @relation(fields: [roleId], references: [id])
+  createdAt       DateTime  @default(now())
+  emailVerifiedAt DateTime?
+  updatedAt       DateTime  @updatedAt
 }
 
 model Job {
   id                 String   @id @default(cuid())
   ceipalId           String?  @unique
+  jobCode            String?  @unique
   title              String
   location           String?
   description        String?
   customInstructions String?
   status             String? // open/closed etc.
+
+  // Additional Ceipal fields
+  company                         Int?
+  remoteOpportunities            String?
+  city                           String?
+  publicJobDesc                  String?
+  modified                       String?
+  postOnCareerportal            String?
+  closingDate                   String?
+  jobStartDate                  String?
+  jobEndDate                    String?
+  payRates                      Json?
+  postedBy                      String?
+  modifiedBy                    String?
+  assignedRecruiter             String?
+  salesManager                  String?
+  primaryRecruiter              String?
+  businessUnitId                Int?
+  currency                      String?
+  employmentType                String?
+  isRecycle                     Int?
+  publicJobTitle                String?
+  priority                      String?
+  requisitionDescription        String?
+  skills                        String?
+  createdBy                     String?
+  recruitmentManager            String?
+  postalCode                    String?
+  state                         String?
+  secondaryCities               String?
+  secondaryPostalCodes          String?
+  secondaryStates               String?
+  country                       String?
+  taxTerms                      String?
+  industry                      String?
+  updated                       String?
+  jobType                       String?
+  jobCategory                   String?
+  applyJob                      String?
+  applyJobWithoutRegistration   String?
+
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
-  applicants Applicant[]
-  rankings   Ranking[]
-  shareLinks  ShareLink[]
+  applicants   Applicant[]
+  rankings     Ranking[]
+  shareLinks   ShareLink[]
   outreachLogs OutreachLog[]
 
   @@index([createdAt])
+  @@index([city])
+  @@index([state])
+  @@index([country])
+  @@index([employmentType])
+  @@index([jobStartDate])
 }
 
 model Applicant {
-  id              String           @id @default(cuid())
-  ceipalId        String?          @unique
+  id              String          @id @default(cuid())
+  ceipalId        String?         @unique
   jobId           String
-  job             Job              @relation(fields: [jobId], references: [id])
+  job             Job             @relation(fields: [jobId], references: [id])
   name            String
   email           String?
   phone           String?
   location        String?
-  yearsExperience Int?             @default(0)
-  skills          String[]         @default([])
-  status          ApplicantStatus  @default(imported)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  yearsExperience Int?            @default(0)
+  skills          String[]        @default([])
+  status          ApplicantStatus @default(imported)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 
   resume        Resume?
   parsedProfile ParsedProfile?
+  submission    Submission?
   rankings      Ranking[]
   outreachLogs  OutreachLog[]
   consents      Consent[]
@@ -81,6 +130,41 @@ model Applicant {
   @@index([location])
   @@index([createdAt])
   @@index([skills], type: Gin)
+}
+
+model Submission {
+  id                             String    @id @default(cuid())
+  ceipalId                       String    @unique
+  applicantId                    String    @unique
+  applicant                      Applicant @relation(fields: [applicantId], references: [id])
+  jobId                          String
+  jobSeekerCeipalId             String?
+  submissionId                   Int?
+  taxTerm                        String?
+  modified                       String?
+  pipelineStatus                 String?
+  source                         String?
+  resumeUrl                      String?
+  submittedBy                    String?
+  businessUnitId                 Int?
+  currencyCode                   String?
+  taggedBy                       String?
+  taggedOn                       String?
+  selectedSubmissionDocuments    String?
+  mergedPdfDocument              String?
+  mergeDocumentPath              String?
+  ceipalApplicantId              Int?
+  payRate                        Json?
+  documents                      Json?
+  employmentType                 String?
+  submittedOn                    String?
+  submissionStatus               String?
+  createdAt                      DateTime  @default(now())
+  updatedAt                      DateTime  @updatedAt
+
+  @@index([submissionId])
+  @@index([source])
+  @@index([submissionStatus])
 }
 
 model Resume {
@@ -94,30 +178,30 @@ model Resume {
 }
 
 model ParsedProfile {
-  id              String    @id @default(cuid())
-  applicantId     String    @unique
-  applicant       Applicant @relation(fields: [applicantId], references: [id])
-  json            Json
-  skills          String[]  @default([])
-  titles          String[]  @default([])
-  location        String?
-  totalExpMonths  Int?      @default(0)
-  parsedAt        DateTime  @default(now())
+  id             String    @id @default(cuid())
+  applicantId    String    @unique
+  applicant      Applicant @relation(fields: [applicantId], references: [id])
+  json           Json
+  skills         String[]  @default([])
+  titles         String[]  @default([])
+  location       String?
+  totalExpMonths Int?      @default(0)
+  parsedAt       DateTime  @default(now())
 
   @@index([skills], type: Gin)
   @@index([location])
 }
 
 model Ranking {
-  id           String    @id @default(cuid())
-  jobId        String
-  applicantId  String
-  job          Job       @relation(fields: [jobId], references: [id])
-  applicant    Applicant @relation(fields: [applicantId], references: [id])
-  score        Int
-  explanation  String?
-  rubric       Json?
-  createdAt    DateTime  @default(now())
+  id          String    @id @default(cuid())
+  jobId       String
+  applicantId String
+  job         Job       @relation(fields: [jobId], references: [id])
+  applicant   Applicant @relation(fields: [applicantId], references: [id])
+  score       Int
+  explanation String?
+  rubric      Json?
+  createdAt   DateTime  @default(now())
 
   @@unique([jobId, applicantId])
   @@index([score])
@@ -158,27 +242,85 @@ model ShareLink {
 }
 
 model AuditLog {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   userId      String?
   applicantId String?
   jobId       String?
   event       String
   metadata    Json?
-  createdAt   DateTime  @default(now())
+  createdAt   DateTime @default(now())
 
   @@index([createdAt])
 }
 
 model Embedding {
-  id         String   @id @default(cuid())
-  namespace  String   // e.g., 'resume', 'profile'
-  refId      String   // references Applicant/ParsedProfile id
+  id        String                @id @default(cuid())
+  namespace String // e.g., 'resume', 'profile'
+  refId     String // references Applicant/ParsedProfile id
   // vector dimensions will be enforced in migration (e.g., vector(1536))
-  vector     Unsupported("vector")
-  model      String?
-  createdAt  DateTime @default(now())
+  vector    Unsupported("vector")
+  model     String?
+  createdAt DateTime              @default(now())
 
   @@index([namespace])
+}
+
+model ProcessingJob {
+  id            String   @id @default(cuid())
+  jobId         String
+  jobCode       String?
+  parsingMode   String   // 'none', 'llamaparse', 'landingai'
+  status        String   // 'running', 'completed', 'failed'
+
+  // Counters
+  totalSubmissions    Int @default(0)
+  processedCount      Int @default(0)
+  errorCount          Int @default(0)
+  s3UploadCount       Int @default(0)
+  parsedCount         Int @default(0)
+  embeddingCount      Int @default(0)
+
+  // Costs
+  totalCost           Float @default(0)
+  parsingCost         Float @default(0)
+  openaiCost          Float @default(0)
+  embeddingCost       Float @default(0)
+
+  // Timing
+  startedAt           DateTime @default(now())
+  completedAt         DateTime?
+  durationMs          Int?
+
+  // Results and errors
+  errors              String[] @default([])
+  successfulApplicants String[] @default([])
+  failedApplicants     String[] @default([])
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  logs                ProcessingLog[]
+
+  @@index([jobId])
+  @@index([status])
+  @@index([startedAt])
+}
+
+model ProcessingLog {
+  id            String   @id @default(cuid())
+  processingJobId String
+  applicantId   String?
+  applicantName String?
+  level         String   // 'info', 'warning', 'error', 'success'
+  message       String
+  details       Json?
+  timestamp     DateTime @default(now())
+
+  processingJob ProcessingJob @relation(fields: [processingJobId], references: [id])
+
+  @@index([processingJobId])
+  @@index([level])
+  @@index([timestamp])
 }
 
 model ProviderConfig {
@@ -187,4 +329,119 @@ model ProviderConfig {
   config    Json
   enabled   Boolean  @default(true)
   createdAt DateTime @default(now())
+}
+
+model LinkedInProfile {
+  id          String  @id @default(cuid())
+  linkedinUrl String  @unique
+  jobCode     String?
+
+  // Identity
+  firstName        String?
+  lastName         String?
+  fullName         String?
+  headline         String?
+  publicIdentifier String?
+  urn              String?
+  openConnection   Boolean?
+
+  // Social
+  connections Int?
+  followers   Int?
+
+  // Contact
+  email        String?
+  mobileNumber String?
+
+  // Current role/company
+  jobTitle                String?
+  companyName             String?
+  companyIndustry         String?
+  companyWebsite          String?
+  companyLinkedin         String?
+  companyFoundedIn        Int?
+  companySize             String?
+  currentJobDuration      String?
+  currentJobDurationInYrs Float?
+
+  // Skills summary
+  topSkillsByEndorsements String?
+
+  // Location
+  addressCountryOnly    String?
+  addressWithCountry    String?
+  addressWithoutCountry String?
+  location              String?
+
+  // Media
+  profilePic            String?
+  profilePicHighQuality String?
+
+  // Bio
+  about String?
+
+  // Structured sections
+  experiences             Json?
+  updates                 Json?
+  skills                  Json?
+  profilePicAllDimensions Json?
+  educations              Json?
+  licenseAndCertificates  Json?
+  honorsAndAwards         Json?
+  languages               Json?
+  volunteerAndAwards      Json?
+  verifications           Json?
+  promos                  Json?
+  highlights              Json?
+  projects                Json?
+  publications            Json?
+  patents                 Json?
+  courses                 Json?
+  testScores              Json?
+  organizations           Json?
+  volunteerCauses         Json?
+  interests               Json?
+  recommendations         Json?
+
+  // Raw payload
+  json      Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  rankings LinkedInRanking[]
+
+  @@index([jobCode])
+  @@index([location])
+}
+
+model LinkedInRanking {
+  id             String          @id @default(cuid())
+  profileId      String
+  profile        LinkedInProfile @relation(fields: [profileId], references: [id])
+  jobCode        String
+  overallRating  Float?
+  decision       String?
+  scoreBreakdown Json?
+  email          Json?
+  questions      Json?
+  result         Json
+  createdAt      DateTime        @default(now())
+
+  @@unique([profileId, jobCode], name: "composite")
+  @@index([jobCode])
+}
+
+model CostRecord {
+  id        String   @id @default(cuid())
+  service   String   // 'openai', 'llamaparse', 'landingai'
+  operation String   // e.g., 'parse_resume', 'rank_candidate'
+  cost      Float    // Cost in USD
+  metadata  Json     // Service-specific usage metadata
+  success   Boolean
+  error     String?
+  createdAt DateTime @default(now())
+
+  @@index([service])
+  @@index([operation])
+  @@index([createdAt])
 }

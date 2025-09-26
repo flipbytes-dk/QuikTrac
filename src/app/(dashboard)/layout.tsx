@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import Image from 'next/image'
 import { ReactNode, useState } from 'react'
+import { removeToken } from '@/lib/auth/token-refresh'
 
 function NavLink({ href, children, onClick }: { href: string; children: ReactNode; onClick?: () => void }) {
   const pathname = usePathname()
@@ -85,10 +86,10 @@ export default function DashboardGroupLayout({ children }: { children: ReactNode
             </button>
           </div>
           <nav className="space-y-2">
+            <NavLink href="/ceipal/search" onClick={closeMobileMenu}>Ceipal Search</NavLink>
             <NavLink href="/dashboard" onClick={closeMobileMenu}>Dashboard</NavLink>
             <NavLink href="/jd-generator" onClick={closeMobileMenu}>JD Generator</NavLink>
             <NavLink href="/linkedin" onClick={closeMobileMenu}>Passive Search (LinkedIn)</NavLink>
-            <NavLink href="/ceipal/search" onClick={closeMobileMenu}>Ceipal Search</NavLink>
           </nav>
           <div className="mt-8 border-t border-[hsl(var(--border))] pt-4">
             <button
@@ -96,6 +97,7 @@ export default function DashboardGroupLayout({ children }: { children: ReactNode
                 try {
                   await fetch('/api/auth/logout', { method: 'POST' })
                 } finally {
+                  removeToken()
                   window.location.href = '/login'
                 }
               }}
@@ -120,6 +122,7 @@ export default function DashboardGroupLayout({ children }: { children: ReactNode
                 try {
                   await fetch('/api/auth/logout', { method: 'POST' })
                 } finally {
+                  removeToken()
                   window.location.href = '/login'
                 }
               }}
@@ -130,10 +133,10 @@ export default function DashboardGroupLayout({ children }: { children: ReactNode
           </div>
           <nav className="space-y-1">
             <NavLink href="/dashboard">Dashboard</NavLink>
+            <NavLink href="/ceipal/search">Ceipal Search</NavLink>
             <NavLink href="/jd-generator">JD Generator</NavLink>
             <NavLink href="/linkedin">Passive Search (LinkedIn)</NavLink>
-<NavLink href="/linkedin/shortlist">Shortlist</NavLink>
-            <NavLink href="/ceipal/search">Ceipal Search</NavLink>
+            <NavLink href="/linkedin/shortlist">Shortlist</NavLink>
           </nav>
         </aside>
         <main className="col-span-12 md:col-span-9 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))]/80 shadow-2xl backdrop-blur supports-[backdrop-filter]:bg-[hsl(var(--card))]/70 p-6 md:p-8">

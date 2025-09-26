@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
 :root {
   color-scheme: light dark;
@@ -49,7 +47,8 @@
   --ring: 217.2 32.6% 17.5%;
 }
 
-html, body {
+html,
+body {
   height: 100%;
 }
 

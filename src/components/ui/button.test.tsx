@@ -10,7 +10,7 @@ describe('Button', () => {
   it('applies variant classes', () => {
     const { rerender } = render(<Button>Default</Button>)
     const btn = screen.getByRole('button', { name: 'Default' })
-    expect(btn.className).toMatch(/bg-\[hsl\(var\(--primary\)\)\]/)
+    expect(btn.className).toMatch(/bg-\[#2487FE\]/)
 
     rerender(<Button variant="destructive">Danger</Button>)
     const danger = screen.getByRole('button', { name: 'Danger' })

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { storeToken } from '@/lib/auth/token-refresh';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -34,8 +35,10 @@ export default function LoginPage() {
         }
         return;
       }
-      // Store access token for API calls (Authorization: Bearer <token>)
+      // Store access token and initialize automatic refresh
       if (data?.accessToken) {
+        storeToken(data.accessToken);
+        // Also store with legacy key for backward compatibility
         localStorage.setItem('access_token', data.accessToken);
         // Mark new session and clear any persisted LinkedIn search state
         try {

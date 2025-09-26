@@ -10,7 +10,7 @@
 - `.editorconfig` - Editor configuration for consistent indentation and newlines.
 - `.prettierrc.json` - Prettier configuration (single quotes, trailing commas, 2-space indent).
 - `.prettierignore` - Ignore list for Prettier formatting.
-- `.env.example` - Sample environment file (Mumbai region notes for S3/SES).
+- `.env.example` - Sample environment file (Mumbai region notes for S3/Resend).
  - `src/app/globals.css` - Global styles with Tailwind directives.
 - `src/app/layout.tsx` - Root layout with shadcn theme, providers.
 - `src/app/page.tsx` - Bootstrap home page (App Router).
@@ -21,25 +21,35 @@
 - `src/components/ui/table.tsx` - Table primitives.
 - `src/components/ui/tabs.tsx` - Tabs components.
 - `src/components/ui/tooltip.tsx` - Tooltip components.
-- `src/app/(auth)/login/page.tsx` - Login page (email + password) with branded UI and logo.
+- `src/app/(auth)/login/page.tsx` - Login page with branded UI and links to Register/Forgot.
+- `src/app/(auth)/register/page.tsx` - Open signup page (sends verification email).
+- `src/app/(auth)/forgot/page.tsx` - Forgot password request page.
+- `src/app/(auth)/verify/[token]/page.tsx` - Email verification landing.
+- `src/app/(auth)/reset/[token]/page.tsx` - Password reset landing.
 - `src/app/(dashboard)/dashboard/page.tsx` - Main dashboard to enter Job ID and view results.
 - `src/app/(jobs)/job/[jobId]/page.tsx` - Job results list with ranking, filters, threshold slider, custom instructions.
 - `src/app/(candidates)/candidate/[id]/page.tsx` - Candidate detail view/drawer with score breakdown and resume preview.
 - `src/app/(outreach)/outreach/page.tsx` - Outreach composer (WhatsApp, Email, Voice).
 - `src/app/jd-generator/page.tsx` - JD generator UI.
 - `src/app/client/[shareId]/page.tsx` - Read-only client shortlist view (optional in MVP).
+- `src/app/api/linkedin/queries/route.ts` - Generate LinkedIn CSE queries via LLM prompt.
+- `src/lib/linkedin/query-prompt.ts` - Prompt builder for LinkedIn queries.
 - `src/app/api/auth/login/route.ts` - API route for email/password login.
 - `src/app/api/auth/logout/route.ts` - API route to clear session (refresh cookie).
 - `src/app/api/auth/refresh/route.ts` - API route to issue new access token from refresh cookie.
-- `src/app/api/auth/register/route.ts` - API route to create users (admin only, optional for seed).
+- `src/app/api/auth/register/route.ts` - API route to create users (open signup) and send verification email via Resend.
 - `src/app/api/ceipal/jobs/[jobId]/route.ts` - On-demand job + applicants fetch from Ceipal.
 - `src/app/api/ranking/route.ts` - AI ranking endpoint applying rubric and custom instructions.
 - `src/app/api/outreach/whatsapp/route.ts` - WhatsApp send message (Meta/Twilio via adapter).
-- `src/app/api/outreach/email/route.ts` - Email send (SES) endpoint.
+- `src/app/api/outreach/email/route.ts` - Email send (Resend) endpoint.
 - `src/app/api/outreach/voice/route.ts` - Voice outreach trigger (Vapi) endpoint.
 - `src/app/api/jd/route.ts` - JD generation endpoint (OpenAI).
 - `src/app/api/search/route.ts` - Candidate search (filters/keyword/semantic).
 - `src/app/api/client/share/route.ts` - Create share link for client shortlist.
+- `src/app/api/auth/verify/request/route.ts` - Request verification email.
+- `src/app/api/auth/verify/confirm/route.ts` - Confirm verification token.
+- `src/app/api/auth/forgot/route.ts` - Request password reset email.
+- `src/app/api/auth/reset/route.ts` - Complete password reset.
 - `src/lib/env.ts` - Runtime-safe env var loader.
 - `src/lib/db/prisma.ts` - Prisma client setup.
 - `prisma/schema.prisma` - Database schema (users, roles, jobs, applicants, resumes, parsed profiles, rankings, outreach logs, consents, shares, audit logs, embeddings, provider configs).
@@ -52,7 +62,7 @@
 - `src/lib/search/index.ts` - Hybrid search orchestration (filters + keyword + semantic).
 - `src/lib/outreach/whatsapp/meta.ts` - Meta WhatsApp Business adapter.
 - `src/lib/outreach/whatsapp/twilio.ts` - Twilio WhatsApp adapter.
-- `src/lib/outreach/email/ses.ts` - AWS SES email sender.
+- `src/lib/email/resend.ts` - Resend email sender (verification/reset).
 - `src/lib/outreach/voice/vapi.ts` - Vapi voice outreach adapter.
 - `src/lib/linkedin/gcse.ts` - Google Custom Search query generator + client.
 - `src/lib/linkedin/scraper.ts` - Playwright + proxy rotation scraper for LinkedIn public profiles.
@@ -84,11 +94,12 @@
   - [x] 1.7 Configure `.editorconfig` and Prettier for consistent formatting.
 
 - [ ] 2.0 Security, Secrets, and Environment Configuration
-  - [x] 2.1 Implement `src/lib/env.ts` to validate required envs (Ceipal, OpenAI, Google CSE, S3, SES, DB, WhatsApp providers, Vapi).
-  - [x] 2.2 Create `.env.example` with all keys and notes (Mumbai region for S3/SES).
+  - [x] 2.1 Implement `src/lib/env.ts` to validate required envs (Ceipal, OpenAI, Google CSE, S3, Resend, DB, WhatsApp providers, Vapi).
+  - [x] 2.2 Create `.env.example` with all keys and notes (Mumbai region for S3/Resend).
   - [x] 2.3 Add basic security headers and CORS policy.
   - [x] 2.4 Document production secrets strategy (AWS Secrets Manager or Doppler) in `README`.
   - [x] 2.5 Add rate limit helper and request ID generator.
+  - [x] 2.6 Add `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, and `EMAIL_TOKEN_SECRET`.
 
 - [ ] 3.0 Database Provisioning on Hetzner (Postgres + pgvector) and Prisma Schema
   - [x] 3.1 Provision Postgres on Hetzner; enable `pgvector` extension.
@@ -99,15 +110,18 @@
   - [x] 3.6 Add `src/lib/db/prisma.ts` with robust singleton pattern.
 
 - [ ] 4.0 Authentication and Roles (Email/Password; Admin, Recruiter, Client Viewer)
-  - [x] 4.1 Build `POST /api/auth/register` (admin only) with bcrypt hashing.
-  - [x] 4.2 Build `POST /api/auth/login` issuing secure HTTP-only JWT cookies.
+  - [x] 4.1 Build `POST /api/auth/register` (open signup) with bcrypt hashing and send verification email (Resend).
+  - [x] 4.2 Build `POST /api/auth/login` issuing secure HTTP-only JWT cookies; gate login on `emailVerifiedAt`.
   - [x] 4.3 Implement `src/middleware.ts` to enforce sessions and role guards.
-  - [x] 4.4 Create login page UI and form validation.
+  - [x] 4.4 Create login page UI and form validation (links to Register/Forgot).
   - [x] 4.5 Add logout and session keep-alive endpoints.
   - [x] 4.6 Tests: auth flows, role protection, password hashing.
+  - [x] 4.7 Build `POST /api/auth/verify/request` and `/api/auth/verify/confirm`.
+  - [x] 4.8 Build `POST /api/auth/forgot` and `/api/auth/reset`.
+  - [x] 4.9 Add Register, Forgot, Verify, Reset pages.
 
 - [ ] 5.0 Ceipal Integration (On-demand fetch; optional write-back)
-  - [ ] 5.1 Implement `src/lib/ceipal/client.ts` (auth, refresh token, jobs, applicants, details).
+  - [x] 5.1 Implement `src/lib/ceipal/client.ts` (auth, refresh token, jobs, applicants, details).
   - [ ] 5.2 Build `GET /api/ceipal/jobs/[jobId]` to fetch job + applicants on demand.
   - [ ] 5.3 Map Ceipal fields to internal schema (normalize skills, titles, locations).
   - [ ] 5.4 Optional: `POST /api/ceipal/writeback` to update statuses/notes.
@@ -136,9 +150,9 @@
   - [ ] 8.3 Add dedupe and merge logic across Ceipal + scraped profiles.
   - [ ] 8.4 Tests: search relevance, pagination, filter correctness.
 
-- [ ] 9.0 Candidate Outreach (WhatsApp Meta/Twilio, Email SES, Voice Vapi) with Consent, Rate Limiting, Business Hours
+- [ ] 9.0 Candidate Outreach (WhatsApp Meta/Twilio, Email Resend, Voice Vapi) with Consent, Rate Limiting, Business Hours
   - [ ] 9.1 Design provider adapter interfaces; implement Meta and Twilio WhatsApp adapters.
-  - [ ] 9.2 Implement SES email sender with templates and attachments/presigned links.
+  - [ ] 9.2 Implement Resend email sender with templates and attachments/presigned links.
   - [ ] 9.3 Implement Vapi voice outreach trigger with call status webhooks.
   - [ ] 9.4 Implement consent tracking model and enforcement.
   - [ ] 9.5 Implement rate limits and business hour windows.
@@ -146,28 +160,31 @@
   - [ ] 9.7 Tests: provider stubs, consent enforcement, throttling.
 
 - [ ] 10.0 Client Delivery (Email Shortlist; Optional Client Portal)
-  - [ ] 10.1 Build shortlist email generator (SES) with configurable template.
+  - [ ] 10.1 Build shortlist email generator (Resend) with configurable template.
   - [ ] 10.2 Option to attach PDFs or include S3 presigned links.
   - [ ] 10.3 Implement `POST /api/client/share` to generate expiring share links.
   - [ ] 10.4 Build read-only client view page showing candidates and scores.
   - [ ] 10.5 Track client views and audit events.
   - [ ] 10.6 Tests: email rendering, share link auth, portal read-only checks.
 
-- [ ] 11.0 JD Generator (OpenAI)
-  - [ ] 11.1 Build `POST /api/jd` with inputs (title, seniority, skills, location, comp, domain).
-  - [ ] 11.2 Implement tone presets and Markdown output; optional HTML export.
-  - [ ] 11.3 UI for JD generator page with copy/export actions.
-  - [ ] 11.4 Tests: prompt shaping, validations, cost guard.
+- [x] 11.0 JD Generator (OpenAI)
+  - [x] 11.1 Build `POST /api/jd` with inputs (title, seniority, skills, location, comp, domain).
+  - [x] 11.2 Implement tone presets and Markdown output; optional HTML export.
+  - [x] 11.3 UI for JD generator page with copy/export actions.
+  - [x] 11.4 Tests: prompt shaping, validations, cost guard.
 
-- [ ] 12.0 Passive LinkedIn Discovery (Google Custom Search, Playwright Scraper, Extraction, Ranking, Dedup)
-  - [ ] 12.1 Implement query generator to shard searches and target `site:linkedin.com/in`.
-  - [ ] 12.2 Call Google CSE, paginate to exceed 100 results across sub-queries.
-  - [ ] 12.3 Build Playwright scraper with proxy rotation and robust selectors.
-  - [ ] 12.4 Extract fields: name, headline/title, location, current company, recent roles, education, skills, profile URL, contact if public.
-  - [ ] 12.5 Deduplicate and normalize; store as ParsedProfile with provenance.
-  - [ ] 12.6 Reuse ranking pipeline to score scraped profiles; merge into search results.
-  - [ ] 12.7 Feature flag and daily cap; error handling + retries.
-  - [ ] 12.8 Tests with recorded fixtures; scraper unit tests.
+- [ ] 12.0 Passive LinkedIn Discovery (Google Custom Search, Playwright/Apify Scraper, Extraction, Ranking, Dedup)
+  - [x] 12.1 Implement query generator to shard searches and target `site:linkedin.com/in` (LLM prompt surfaced and editable in UI).
+  - [x] 12.2 Call Google CSE with generated sub-queries; deduplicate overlapping results; UI with spinners.
+  - [x] 12.3 Results page pagination set to 10 per page; add selection checkboxes (default all selected), Select All (page/global), Job Code input (format `JPC - XYZ`).
+  - [x] 12.4 Add `POST /api/linkedin/scrape` to accept selected URLs, chunk by 25, call `RUN_ACTOR_FETCH_DATA` (Apify) with `{ profileUrls: [...] }`, and persist results.
+  - [x] 12.5 Extend Prisma schema with `LinkedInProfile` (unique `linkedinUrl`, `jobCode`, selected normalized fields + full JSON). Skip URLs that already exist before scraping; upsert on save.
+  - [x] 12.6 Ranking pipeline (OpenAI gpt-5 with fallback), concurrency with diagnostics; `POST /api/linkedin/rank` persists `LinkedInRanking` per profile+jobCode.
+  - [x] 12.7 Store Job Code, JD, and Custom Instructions in DB (`Job.jobCode`, `Job.description`, `Job.customInstructions`) and upsert on ranking.
+  - [x] 12.8 Shortlist UI: `/linkedin/shortlist` with Job Code filter, paginated cards (image, basics, justification, editable email/WhatsApp drafts, questions, and outreach action buttons).
+  - [ ] 12.9 Build Playwright fallback (proxy rotation) for environments without Apify; same extractor and storage contract.
+  - [ ] 12.10 Feature flag and daily cap; error handling + retries.
+  - [ ] 12.11 Tests with recorded fixtures; scraper and ranking unit tests.
 
 - [ ] 13.0 Observability and Audit Trails (Structured Logs, Prompt Redaction, Export)
   - [ ] 13.1 Implement `logger.ts` with structured JSON logs and request IDs.
@@ -193,13 +210,13 @@
   - [ ] 15.7 Accessibility pass and responsive layouts.
   - [ ] 15.8 Tests: RTL component tests for critical flows.
 
-- [ ] 16.0 Deployment & DevOps (Environments, CI/CD, Domain/SSL, SES/S3 setup)
+- [ ] 16.0 Deployment & DevOps (Environments, CI/CD, Domain/SSL, S3/Resend setup)
   - [ ] 16.1 GitHub Actions: typecheck, lint, test, build, prisma migrate deploy.
-  - [ ] 16.2 Provision AWS S3 (Mumbai) and SES (domain verification, DKIM/SPF).
+  - [ ] 16.2 Provision AWS S3 (Mumbai) and Resend sender domain (SPF/DKIM) or verified from address.
   - [ ] 16.3 Provision Playwright scraper infra and proxy provider; secret rotation.
   - [ ] 16.4 Configure environments (dev/staging/prod), domains, SSL.
   - [ ] 16.5 Health checks, uptime monitoring, and alerting.
-  - [ ] 16.6 Runbooks for on-call (Ceipal/API limits, SES bounces, scraper blocks).
+  - [ ] 16.6 Runbooks for on-call (Ceipal/API limits, email bounces, scraper blocks).
 
 - [ ] 17.0 Performance and Cost Controls (LLM budget caps, Rate Limits, Caching)
   - [ ] 17.1 Track per-job and daily LLM spend; enforce soft/hard caps.

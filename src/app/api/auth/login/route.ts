@@ -37,6 +37,10 @@ export async function POST(req: NextRequest) {
     })
     if (!user) return badRequest('invalid_credentials', 401)
 
+    if (!user.emailVerifiedAt) {
+      return badRequest('email_unverified', 403)
+    }
+
     const ok = await verifyPassword(password, user.passwordHash)
     if (!ok) return badRequest('invalid_credentials', 401)
 

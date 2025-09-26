@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
   const refreshTtl = ttlToSeconds(process.env.REFRESH_TOKEN_TTL, 60 * 60 * 24 * 7)
   const prod = process.env.NODE_ENV === 'production'
 
-  const res = NextResponse.json({ accessToken, user: { id: user.id, email: user.email, role } })
+  const res = NextResponse.json({ success: true, accessToken, user: { id: user.id, email: user.email, role } })
   res.headers.append(
     'Set-Cookie',
     `refresh_token=${encodeURIComponent(newRefresh)}; Max-Age=${refreshTtl}; Path=/; HttpOnly; SameSite=Lax; ${

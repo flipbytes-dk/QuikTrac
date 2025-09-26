@@ -56,6 +56,8 @@ export async function middleware(req: NextRequest) {
       const auth = req.headers.get('authorization') || ''
       const token = auth.startsWith('Bearer ') ? auth.slice(7) : null
       if (!token) {
+        // Debug: missing Authorization header
+        console.warn('[auth] missing_token', { path: urlPath, requestId })
         resHeaders.set('Content-Type', 'application/json')
         return new NextResponse(JSON.stringify({ error: 'unauthorized', code: 401, requestId }), {
           status: 401,
@@ -66,7 +68,9 @@ export async function middleware(req: NextRequest) {
         const claims = await verifyAccessToken(token)
         headers.set('x-user-id', claims.sub as string)
         headers.set('x-user-role', String(claims.role || 'recruiter'))
-      } catch {
+      } catch (e: any) {
+        // Debug: invalid token details (masked)
+        console.warn('[auth] invalid_token', { path: urlPath, requestId, reason: e?.message, tokenPrefix: token.slice(0, 10) + '...' })
         resHeaders.set('Content-Type', 'application/json')
         return new NextResponse(JSON.stringify({ error: 'invalid_token', code: 401, requestId }), {
           status: 401,

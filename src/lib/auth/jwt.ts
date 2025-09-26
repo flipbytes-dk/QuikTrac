@@ -8,7 +8,7 @@ function getSecrets() {
   if (!accessSecret || !refreshSecret) {
     throw new Error('JWT secrets not configured: set ACCESS_TOKEN_SECRET and REFRESH_TOKEN_SECRET')
   }
-  const accessTtl = process.env.ACCESS_TOKEN_TTL || '15m'
+  const accessTtl = process.env.ACCESS_TOKEN_TTL || '100y'
   const refreshTtl = process.env.REFRESH_TOKEN_TTL || '7d'
   return { accessSecret, refreshSecret, accessTtl, refreshTtl }
 }

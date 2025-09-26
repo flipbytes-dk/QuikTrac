@@ -7,6 +7,7 @@ export default function ShortlistPage() {
   const [items, setItems] = useState<any[]>([])
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
+  const [candidateSource, setCandidateSource] = useState<'linkedin' | 'ceipal'>('linkedin')
   const pageSize = 10
 
   async function fetchShortlist() {
@@ -15,7 +16,13 @@ export default function ShortlistPage() {
       const token = localStorage.getItem('access_token')
       const digits = jobCode.match(/\d+/)?.[0]
       const jobCodeNormalized = digits ? `JPC - ${digits}` : jobCode.trim()
-      const res = await fetch(`/api/linkedin/shortlist?jobCode=${encodeURIComponent(jobCodeNormalized)}&page=${page}&pageSize=${pageSize}`, {
+
+      // Use different API based on candidate source
+      const apiEndpoint = candidateSource === 'linkedin'
+        ? `/api/linkedin/shortlist?jobCode=${encodeURIComponent(jobCodeNormalized)}&page=${page}&pageSize=${pageSize}`
+        : `/api/ceipal/shortlist?jobCode=${encodeURIComponent(jobCodeNormalized)}&page=${page}&pageSize=${pageSize}`
+
+      const res = await fetch(apiEndpoint, {
         headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) }
       })
       const data = await res.json()
@@ -25,10 +32,16 @@ export default function ShortlistPage() {
   }
 
   function buildWhatsAppDraft(it: any) {
+    // Use AI-generated WhatsApp message if available, otherwise fallback to template
+    if (it.whatsappBody && it.whatsappBody.trim()) {
+      return it.whatsappBody
+    }
+
+    // Fallback template for backwards compatibility
     const name = it.firstName || it.fullName || 'there'
     const role = it.jobTitle || 'an AI Architect role'
     const code = jobCode
-    return `Hi ${name}, we’re considering you for ${role} (${code}). Your experience in ${it.headline || 'AI/ML and cloud'} looks aligned with the role. If interested, could you please share your current CTC (fixed + variable) and expected CTC, notice period, and preferred location? Thanks!`
+    return `Hi ${name}, we're considering you for ${role} (${code}). Your experience in ${it.headline || 'AI/ML and cloud'} looks aligned with the role. If interested, could you please share your current CTC (fixed + variable) and expected CTC, notice period, and preferred location? Thanks!`
   }
 
   return (
@@ -37,16 +50,71 @@ export default function ShortlistPage() {
         <h1 className="text-2xl font-semibold text-[#172233]">Shortlisted candidates</h1>
         <p className="text-[#172233]/85 mt-1">View and manage your shortlisted candidates with contact information and interview materials.</p>
       </div>
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm text-[#172233]/70">
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span>Enter a job code to load candidates</span>
+      <div className="mb-6 space-y-4">
+        {/* Candidate Source Selection */}
+        <div className="flex items-center gap-6">
+          <span className="text-sm font-medium text-[#172233]">Candidate Source:</span>
+          <div className="flex items-center gap-4">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="candidateSource"
+                value="linkedin"
+                checked={candidateSource === 'linkedin'}
+                onChange={() => {
+                  setCandidateSource('linkedin')
+                  setPage(1)
+                  setItems([])
+                }}
+                className="w-4 h-4 text-[#2487FE] bg-white border-gray-300 focus:ring-[#2487FE] focus:ring-2"
+              />
+              <span className="text-sm text-[#172233]">LinkedIn Passive Candidates</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="candidateSource"
+                value="ceipal"
+                checked={candidateSource === 'ceipal'}
+                onChange={() => {
+                  setCandidateSource('ceipal')
+                  setPage(1)
+                  setItems([])
+                }}
+                className="w-4 h-4 text-[#2487FE] bg-white border-gray-300 focus:ring-[#2487FE] focus:ring-2"
+              />
+              <span className="text-sm text-[#172233]">Ceipal Shortlisted Candidates</span>
+            </label>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <input className="rounded-lg border border-[hsl(var(--border))] bg-white/70 px-3 py-2 text-sm shadow-sm backdrop-blur transition-all duration-200 focus:border-[#2487FE] focus:ring-2 focus:ring-[#2487FE] focus:ring-offset-2 hover:border-[hsl(var(--border))]/80" placeholder="JPC - 123" value={jobCode} onChange={(e)=>setJobCode(e.target.value)} />
-          <button className="rounded-lg bg-[#2487FE] px-4 py-2 text-white font-medium text-sm shadow-md hover:bg-[#1d6fd1] hover:shadow-lg transition-all duration-200 active:scale-95" onClick={fetchShortlist}>Load</button>
+
+        {/* Job Code Input */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm text-[#172233]/70">
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>
+              {candidateSource === 'linkedin'
+                ? 'Enter a job code to load LinkedIn passive candidates'
+                : 'Enter a job code to load Ceipal shortlisted candidates'
+              }
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              className="rounded-lg border border-[hsl(var(--border))] bg-white/70 px-3 py-2 text-sm shadow-sm backdrop-blur transition-all duration-200 focus:border-[#2487FE] focus:ring-2 focus:ring-[#2487FE] focus:ring-offset-2 hover:border-[hsl(var(--border))]/80"
+              placeholder="JPC - 123"
+              value={jobCode}
+              onChange={(e)=>setJobCode(e.target.value)}
+            />
+            <button
+              className="rounded-lg bg-[#2487FE] px-4 py-2 text-white font-medium text-sm shadow-md hover:bg-[#1d6fd1] hover:shadow-lg transition-all duration-200 active:scale-95"
+              onClick={fetchShortlist}
+            >
+              Load {candidateSource === 'linkedin' ? 'LinkedIn' : 'Ceipal'} Candidates
+            </button>
+          </div>
         </div>
       </div>
 
@@ -65,13 +133,15 @@ export default function ShortlistPage() {
           {items.map((it) => (
             <div key={it.id} className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))]/80 p-6 shadow-xl backdrop-blur transition-all duration-200 hover:shadow-2xl hover:scale-[1.01] hover:border-[#2487FE]/20 supports-[backdrop-filter]:bg-[hsl(var(--card))]/70">
               <div className="flex items-start gap-4">
-                {it.profilePic ? <img src={it.profilePic} alt="pic" className="h-16 w-16 rounded-full object-cover shadow-lg ring-2 ring-[#2487FE]/10" /> : <div className="h-16 w-16 rounded-full bg-gradient-to-br from-[#2487FE]/20 to-[#172233]/20 flex items-center justify-center text-[#172233] font-semibold text-lg">{(it.fullName || 'U').charAt(0)}</div>}
+                {it.profilePic ? <img src={it.profilePic} alt="pic" className="h-16 w-16 rounded-full object-cover shadow-lg ring-2 ring-[#2487FE]/10" /> : <div className="h-16 w-16 rounded-full bg-gradient-to-br from-[#2487FE]/20 to-[#172233]/20 flex items-center justify-center text-[#172233] font-semibold text-lg">{(it.fullName || it.name || 'U').charAt(0)}</div>}
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-xl font-semibold text-[#172233]">{it.fullName || 'Unknown'}</h3>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#2487FE]/10 text-[#2487FE] border border-[#2487FE]/20">({it.overallRating ?? '?'}/10)</span>
+                    <h3 className="text-xl font-semibold text-[#172233]">{it.fullName || it.name || 'Unknown'}</h3>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#2487FE]/10 text-[#2487FE] border border-[#2487FE]/20">
+                      {candidateSource === 'ceipal' ? `${it.score || '?'}/100` : `${it.overallRating ?? '?'}/10`}
+                    </span>
                   </div>
-                  <div className="text-sm text-[#172233]/85 mb-3">{it.headline || 'No headline available'}</div>
+                  <div className="text-sm text-[#172233]/85 mb-3">{it.headline || it.currentTitle || 'No headline available'}</div>
 
                   {/* Contact Information */}
                   <div className="flex flex-wrap gap-4 mb-4 text-sm">
@@ -89,8 +159,12 @@ export default function ShortlistPage() {
                     </div>
                   </div>
                   <div className="bg-[#F1F3F7] rounded-lg p-3 mb-4">
-                    <div className="text-xs font-medium text-[#172233] mb-1">Justification</div>
-                    <div className="text-sm text-[#172233]/85 whitespace-pre-line">{it.justification || 'No justification provided'}</div>
+                    <div className="text-xs font-medium text-[#172233] mb-1">
+                      {candidateSource === 'ceipal' ? 'AI Assessment' : 'Justification'}
+                    </div>
+                    <div className="text-sm text-[#172233]/85 whitespace-pre-line">
+                      {it.explanation || it.justification || 'No assessment provided'}
+                    </div>
                   </div>
                   <div className="grid gap-4 lg:grid-cols-2">
                     <div className="bg-white/50 rounded-lg p-3 border border-[hsl(var(--border))]">
@@ -161,8 +235,64 @@ export default function ShortlistPage() {
       )}
 
       <div className="mt-4 flex justify-end gap-2">
-        <button className="rounded-lg border border-[#172233] bg-transparent px-4 py-2 text-[#172233] font-medium text-sm shadow-sm hover:bg-[#2487FE]/5 hover:border-[#2487FE] hover:text-[#2487FE] transition-all duration-200 active:scale-95" onClick={()=> setPage(Math.max(1, page-1))}>Previous</button>
-        <button className="rounded-lg border border-[#172233] bg-transparent px-4 py-2 text-[#172233] font-medium text-sm shadow-sm hover:bg-[#2487FE]/5 hover:border-[#2487FE] hover:text-[#2487FE] transition-all duration-200 active:scale-95" onClick={()=> setPage(page+1)}>Next</button>
+        <button
+          className="rounded-lg border border-[#172233] bg-transparent px-4 py-2 text-[#172233] font-medium text-sm shadow-sm hover:bg-[#2487FE]/5 hover:border-[#2487FE] hover:text-[#2487FE] transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={async () => {
+            const newPage = Math.max(1, page - 1)
+            setPage(newPage)
+
+            // Fetch with new page number
+            setLoading(true)
+            try {
+              const token = localStorage.getItem('access_token')
+              const digits = jobCode.match(/\d+/)?.[0]
+              const jobCodeNormalized = digits ? `JPC - ${digits}` : jobCode.trim()
+
+              const apiEndpoint = candidateSource === 'linkedin'
+                ? `/api/linkedin/shortlist?jobCode=${encodeURIComponent(jobCodeNormalized)}&page=${newPage}&pageSize=${pageSize}`
+                : `/api/ceipal/shortlist?jobCode=${encodeURIComponent(jobCodeNormalized)}&page=${newPage}&pageSize=${pageSize}`
+
+              const res = await fetch(apiEndpoint, {
+                headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) }
+              })
+              const data = await res.json()
+              if (!res.ok) throw new Error(data?.error || 'fetch_failed')
+              setItems(data.items || [])
+            } catch { setItems([]) } finally { setLoading(false) }
+          }}
+          disabled={page <= 1}
+        >
+          Previous
+        </button>
+        <span className="flex items-center px-3 text-sm text-[#172233]/70">Page {page}</span>
+        <button
+          className="rounded-lg border border-[#172233] bg-transparent px-4 py-2 text-[#172233] font-medium text-sm shadow-sm hover:bg-[#2487FE]/5 hover:border-[#2487FE] hover:text-[#2487FE] transition-all duration-200 active:scale-95"
+          onClick={async () => {
+            const newPage = page + 1
+            setPage(newPage)
+
+            // Fetch with new page number
+            setLoading(true)
+            try {
+              const token = localStorage.getItem('access_token')
+              const digits = jobCode.match(/\d+/)?.[0]
+              const jobCodeNormalized = digits ? `JPC - ${digits}` : jobCode.trim()
+
+              const apiEndpoint = candidateSource === 'linkedin'
+                ? `/api/linkedin/shortlist?jobCode=${encodeURIComponent(jobCodeNormalized)}&page=${newPage}&pageSize=${pageSize}`
+                : `/api/ceipal/shortlist?jobCode=${encodeURIComponent(jobCodeNormalized)}&page=${newPage}&pageSize=${pageSize}`
+
+              const res = await fetch(apiEndpoint, {
+                headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) }
+              })
+              const data = await res.json()
+              if (!res.ok) throw new Error(data?.error || 'fetch_failed')
+              setItems(data.items || [])
+            } catch { setItems([]) } finally { setLoading(false) }
+          }}
+        >
+          Next
+        </button>
       </div>
     </div>
   )
